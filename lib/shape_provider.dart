@@ -7,6 +7,11 @@ enum Mode {
   image,
 }
 
+class Position {
+  double dx = 0.0;
+  double dy = 0.0;
+}
+
 class ShapeProvider extends ChangeNotifier {
   List<int> idList = [];
   int currentId = 1;
@@ -19,6 +24,7 @@ class ShapeProvider extends ChangeNotifier {
   Map<int, Color> textColorMap = {};
   Map<int, double> fontSizeMap = {};
   Map<int, String> imagePathMap = {};
+  Map<int, Position> positionMap = {};
 
   void addId(int id) {
     idList.add(id);
@@ -72,6 +78,11 @@ class ShapeProvider extends ChangeNotifier {
 
   void changeImagePath(String path) {
     imagePathMap[currentId] = path;
+    notifyListeners();
+  }
+
+  void changePosition(Position position) {
+    positionMap[currentId] = position;
     notifyListeners();
   }
 }

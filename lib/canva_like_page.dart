@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import 'shape_provider.dart';
 
 class CanvaLikePage extends StatelessWidget {
+  static final GlobalKey stackKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    final ShapeProvider provider = Provider.of<ShapeProvider>(context);
+    final ShapeProvider p = Provider.of<ShapeProvider>(context);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -25,17 +27,20 @@ class CanvaLikePage extends StatelessWidget {
             height: double.infinity,
             child: Column(
               children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      for (int i = 0; i < provider.idList.length; i++) ...[
-                        Shape(provider.idList[i]),
-                      ]
-                    ],
-                  )),
+                Container(
+                  child: Expanded(
+                    child: Stack(
+                      key: CanvaLikePage.stackKey,
+                      children: [
+                        for (int i = 0; i < p.idList.length; i++) ...[
+                          Shape(p.idList[i]),
+                        ]
+                      ],
+                    )),
+                ),
                 Divider(indent: 20.0, endIndent: 20.0, thickness: 0.5, height: 0.0, color: Colors.grey,),
-                ModeSelector(provider),
-                ToolBox(provider),
+                ModeSelector(p),
+                ToolBox(p),
               ],
             ),
           ),
@@ -46,12 +51,11 @@ class CanvaLikePage extends StatelessWidget {
             backgroundColor: Colors.orange,
             child: Icon(Icons.add),
             onPressed: () {
-              provider.addId(provider.lastId);
-              provider.changeCurrentId(provider.lastId);
-              provider.incrementLastId();
-
-              if (provider.currentMode == Mode.text) {
-                provider.changeMode(Mode.none);
+              p.addId(p.lastId);
+              p.changeCurrentId(p.lastId);
+              p.incrementLastId();
+              if (p.currentMode == Mode.text) {
+                p.changeMode(Mode.none);
               }
             },
           ),
@@ -62,13 +66,13 @@ class CanvaLikePage extends StatelessWidget {
 }
 
 class ToolBox extends StatelessWidget {
-  final ShapeProvider provider;
+  final ShapeProvider p;
   final List<Color> colorList = [Colors.black, Colors.red, Colors.green, Colors.blue, Colors.yellow];
-  ToolBox(this.provider);
+  ToolBox(this.p);
 
   @override
   Widget build(BuildContext context) {
-    switch (provider.currentMode) {
+    switch (p.currentMode) {
       case Mode.paint:
         return Container(
           width: double.infinity,
@@ -80,14 +84,14 @@ class ToolBox extends StatelessWidget {
                   for (Color color in colorList) ...[
                     GestureDetector(
                       onTap: () {
-                        if (provider.idList.contains(provider.currentId)) {
-                          provider.changeColor(color);
+                        if (p.idList.contains(p.currentId)) {
+                          p.changeColor(color);
                         }},
                       child: Container(
                         width: 60.0,
                         height: 60.0,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: color == provider.colorMap[provider.currentId] ? 3.5 : 1.0),
+                          border: Border.all(color: Colors.white, width: color == p.colorMap[p.currentId] ? 3.5 : 1.0),
                           borderRadius: BorderRadius.circular(25.0),
                           color: color,
                         ),
@@ -104,9 +108,9 @@ class ToolBox extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               TextFormField(
-                initialValue: provider.textMap[provider.currentId] == null ? '' : provider.textMap[provider.currentId],
+                initialValue: p.textMap[p.currentId] == null ? '' : p.textMap[p.currentId],
                 onChanged: (value) {
-                  provider.changeText(value);
+                  p.changeText(value);
                 },
                 decoration: InputDecoration(
                   hintText: '여기에 입력하세요'
@@ -120,17 +124,17 @@ class ToolBox extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 1.0),
-                        color: provider.fontWeightMap[provider.currentId] == FontWeight.bold ? Colors.grey : Colors.transparent
+                        color: p.fontWeightMap[p.currentId] == FontWeight.bold ? Colors.grey : Colors.transparent
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         constraints: BoxConstraints(),
                         icon: Icon(Icons.format_bold),
                         onPressed: () {
-                          if (provider.fontWeightMap[provider.currentId] == FontWeight.bold) {
-                            provider.changeFontWeight(FontWeight.normal);
+                          if (p.fontWeightMap[p.currentId] == FontWeight.bold) {
+                            p.changeFontWeight(FontWeight.normal);
                           } else {
-                            provider.changeFontWeight(FontWeight.bold);
+                            p.changeFontWeight(FontWeight.bold);
                           }
                         },
                       ),
@@ -141,8 +145,8 @@ class ToolBox extends StatelessWidget {
                       for (Color color in colorList) ...[
                         GestureDetector(
                           onTap: () {
-                            if (provider.idList.contains(provider.currentId)) {
-                              provider.changeTextColor(color);
+                            if (p.idList.contains(p.currentId)) {
+                              p.changeTextColor(color);
                             }
                           },
                           child: Container(
@@ -156,11 +160,11 @@ class ToolBox extends StatelessWidget {
                   ),
                   Slider(
                     onChanged: (value) {
-                      if (provider.idList.contains(provider.currentId)) {
-                        provider.changeFontSize(value);
+                      if (p.idList.contains(p.currentId)) {
+                        p.changeFontSize(value);
                       }
                     },
-                    value: provider.fontSizeMap[provider.currentId] == null ? 14.0 : provider.fontSizeMap[provider.currentId]!,
+                    value: p.fontSizeMap[p.currentId] == null ? 14.0 : p.fontSizeMap[p.currentId]!,
                     min: 10.0,
                     max: 30.0,
                     divisions: 20,
@@ -181,7 +185,7 @@ class ToolBox extends StatelessWidget {
             onPressed: () async {
               ImagePicker imagePicker = ImagePicker();
               XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-              provider.changeImagePath(image!.path);
+              p.changeImagePath(image!.path);
             },
             child: Text('이미지 선택', textScaleFactor: 1.2, style: TextStyle(
               color: Colors.white
@@ -194,7 +198,7 @@ class ToolBox extends StatelessWidget {
           height: 100.0,
           color: Colors.black.withOpacity(0.7),
           child: Center(child: Text(
-            provider.idList.isEmpty ? '아이템을 생성해주세요' : '사용할 모드를 선택해주세요',
+            p.idList.isEmpty ? '아이템을 생성해주세요' : '사용할 모드를 선택해주세요',
             textScaleFactor: 1.2,
             style: TextStyle(
             color: Colors.white
@@ -206,8 +210,8 @@ class ToolBox extends StatelessWidget {
 }
 
 class ModeSelector extends StatelessWidget {
-  final ShapeProvider provider;
-  ModeSelector(this.provider);
+  final ShapeProvider p;
+  ModeSelector(this.p);
 
   @override
   Widget build(BuildContext context) {
@@ -219,38 +223,38 @@ class ModeSelector extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              if (provider.idList.contains(provider.currentId)) {
-                provider.changeMode(Mode.paint);
+              if (p.idList.contains(p.currentId)) {
+                p.changeMode(Mode.paint);
               }
             },
             child: Text('페인트', textScaleFactor: 1.5, style: TextStyle(
-                fontWeight: provider.currentMode == Mode.paint ? FontWeight.bold : FontWeight.normal
+                fontWeight: p.currentMode == Mode.paint ? FontWeight.bold : FontWeight.normal
             ),),
           ),
           GestureDetector(
             onTap: () {
-              if (provider.idList.contains(provider.currentId)) {
-                provider.changeMode(Mode.text);
+              if (p.idList.contains(p.currentId)) {
+                p.changeMode(Mode.text);
               }
             },
             child: Text('텍스트', textScaleFactor: 1.5, style: TextStyle(
-                fontWeight: provider.currentMode == Mode.text ? FontWeight.bold : FontWeight.normal
+                fontWeight: p.currentMode == Mode.text ? FontWeight.bold : FontWeight.normal
             ),),
           ),
           GestureDetector(
             onTap: () {
-              if (provider.idList.contains(provider.currentId)) {
-                provider.changeMode(Mode.image);
+              if (p.idList.contains(p.currentId)) {
+                p.changeMode(Mode.image);
               }
             },
             child: Text('이미지', textScaleFactor: 1.5, style: TextStyle(
-                fontWeight: provider.currentMode == Mode.image ? FontWeight.bold : FontWeight.normal
+                fontWeight: p.currentMode == Mode.image ? FontWeight.bold : FontWeight.normal
             ),),
           ),
           GestureDetector(
             onTap: () {
-              provider.removeId(provider.currentId);
-              provider.changeMode(Mode.none);
+              p.removeId(p.currentId);
+              p.changeMode(Mode.none);
             },
             child: Text('삭제', textScaleFactor: 1.5, style: TextStyle(color: Colors.red),),
           ),
