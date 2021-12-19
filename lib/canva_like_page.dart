@@ -27,20 +27,18 @@ class CanvaLikePage extends StatelessWidget {
             height: double.infinity,
             child: Column(
               children: [
-                Container(
-                  child: Expanded(
-                    child: Stack(
-                      key: CanvaLikePage.stackKey,
-                      children: [
-                        for (int i = 0; i < p.idList.length; i++) ...[
-                          Shape(p.idList[i]),
-                        ]
-                      ],
-                    )),
-                ),
+                Expanded(
+                  child: Stack(
+                    key: CanvaLikePage.stackKey,
+                    children: [
+                      for (int i = 0; i < p.idList.length; i++) ...[
+                        Shape(p.idList[i]),
+                      ]
+                    ],
+                  )),
                 Divider(indent: 20.0, endIndent: 20.0, thickness: 0.5, height: 0.0, color: Colors.grey,),
-                ModeSelector(p),
-                ToolBox(p),
+                ModeSelector(),
+                ToolBox(),
               ],
             ),
           ),
@@ -66,12 +64,12 @@ class CanvaLikePage extends StatelessWidget {
 }
 
 class ToolBox extends StatelessWidget {
-  final ShapeProvider p;
   final List<Color> colorList = [Colors.black, Colors.red, Colors.green, Colors.blue, Colors.yellow];
-  ToolBox(this.p);
 
   @override
   Widget build(BuildContext context) {
+    ShapeProvider p = Provider.of<ShapeProvider>(context);
+
     switch (p.currentMode) {
       case Mode.paint:
         return Container(
@@ -210,11 +208,10 @@ class ToolBox extends StatelessWidget {
 }
 
 class ModeSelector extends StatelessWidget {
-  final ShapeProvider p;
-  ModeSelector(this.p);
-
   @override
   Widget build(BuildContext context) {
+    ShapeProvider p = Provider.of<ShapeProvider>(context);
+
     return Container(
       width: double.infinity,
       height: 50.0,

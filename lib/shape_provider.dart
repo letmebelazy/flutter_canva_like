@@ -12,11 +12,19 @@ class Position {
   double dy = 0.0;
 }
 
+class Length {
+  double width = 70.0;
+  double height = 70.0;
+
+  Length(this.width, this.height);
+}
+
 class ShapeProvider extends ChangeNotifier {
   List<int> idList = [];
   int currentId = 1;
   int lastId = 1;
   Mode currentMode = Mode.none;
+  Offset startingOffset = Offset(0, 0);
 
   Map<int, Color> colorMap = {};
   Map<int, String> textMap = {};
@@ -25,6 +33,7 @@ class ShapeProvider extends ChangeNotifier {
   Map<int, double> fontSizeMap = {};
   Map<int, String> imagePathMap = {};
   Map<int, Position> positionMap = {};
+  Map<int, Length> lengthMap = {};
 
   void addId(int id) {
     idList.add(id);
@@ -83,6 +92,16 @@ class ShapeProvider extends ChangeNotifier {
 
   void changePosition(Position position) {
     positionMap[currentId] = position;
+    notifyListeners();
+  }
+
+  void changeLength(Length length) {
+    lengthMap[currentId] = length;
+    notifyListeners();
+  }
+
+  void fixStartingOffset(Offset offset) {
+    startingOffset = offset;
     notifyListeners();
   }
 }
